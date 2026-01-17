@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Resume {
+  id              String     @id @default(cuid())
+  userId          String     @default("user_123")
+  fileName        String
+  rawText         String     @db.Text
+  extractedSkills Json
+  vectorId        String?    @unique
+  jobMatches      JobMatch[]
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model JobDescription {
+  id             String     @id @default(cuid())
+  title          String
+  company        String?
+  description    String     @db.Text
+  requiredSkills Json
+  vectorId       String?    @unique
+  matches        JobMatch[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@index([createdAt])
+}
+
+model JobMatch {
+  id                 String         @id @default(cuid())
+  resumeId           String
+  resume             Resume         @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  jobId              String
+  job                JobDescription @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  similarityScore    Float
+  skillGaps          Json
+  matchedSkills      Json
+  interviewQuestions Json?
+  recommendations    Json?
+  createdAt          DateTime       @default(now())
+
+  @@unique([resumeId, jobId])
+  @@index([similarityScore])
+}

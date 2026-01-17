@@ -83,10 +83,10 @@ export const ExtractedSkillsSchema = z.object({
   languages: z.array(z.string()).default([]),
   tools: z.array(z.string()).default([]),
   softSkills: z.array(z.string()).default([]),
-  yearsOfExperience: z.number().optional(),
-  currentRole: z.string().optional(),
-  education: z.array(z.string()).optional(),
-  certifications: z.array(z.string()).optional(),
+  yearsOfExperience: z.number().nullable().optional().transform(val => val ?? undefined),
+  currentRole: z.string().nullable().optional().transform(val => val ?? undefined),
+  education: z.array(z.string()).nullable().optional().transform(val => val ?? undefined),
+  certifications: z.array(z.string()).nullable().optional().transform(val => val ?? undefined),
 });
 
 // Vector metadata for Pinecone

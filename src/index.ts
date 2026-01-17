@@ -78,12 +78,10 @@ process.on('SIGINT', () => shutdown('SIGINT'));
 
 // Start server
 async function start() {
-  try {
-    // Connect to database
-    await connectDatabase();
-
-    app.listen(PORT, () => {
-      console.log(`
+  // Start listening FIRST so Render can detect the port
+  // Bind to 0.0.0.0 for cloud deployment
+  const server = app.listen(Number(PORT), '0.0.0.0', () => {
+    console.log(`
 ========================================
   Resume Analyzer API
 ========================================
@@ -92,11 +90,17 @@ async function start() {
   Health:      http://localhost:${PORT}/health
   API Base:    http://localhost:${PORT}/api/v1
 ========================================
-      `);
-    });
+    `);
+  });
+
+  try {
+    // Connect to database after port is bound
+    await connectDatabase();
+    console.log('Server ready to accept requests');
   } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
+    console.error('Failed to connect to database:', error);
+    // Don't exit - keep server running so Render doesn't restart in a loop
+    // The health endpoint will still work for debugging
   }
 }
 

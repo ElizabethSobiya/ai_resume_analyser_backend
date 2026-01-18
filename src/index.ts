@@ -53,6 +53,14 @@ app.get('/health', (req, res) => {
     status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
+    env: {
+      NODE_ENV: process.env.NODE_ENV || 'not set',
+      hasOpenAIKey: !!process.env.OPENAI_API_KEY,
+      openAIKeyPrefix: process.env.OPENAI_API_KEY?.substring(0, 10) || 'not set',
+      openAIModel: process.env.OPENAI_MODEL || 'not set',
+      hasPineconeKey: !!process.env.PINECONE_API_KEY,
+      hasDatabaseURL: !!process.env.DATABASE_URL,
+    },
   });
 });
 

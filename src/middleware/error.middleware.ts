@@ -99,12 +99,12 @@ export function errorHandler(
     return;
   }
 
-  // Handle OpenAI API errors
+  // Handle OpenAI API errors - show actual error for debugging
   if (err.message.includes('OpenAI') || err.message.includes('API key')) {
     res.status(503).json({
       success: false,
       error: {
-        message: 'AI service temporarily unavailable',
+        message: `AI service error: ${err.message}`,
         code: 'AI_SERVICE_ERROR',
       },
     });

@@ -1,36 +1,34 @@
-import fs from 'fs';
 import path from 'path';
 import pdfParse from 'pdf-parse';
 import mammoth from 'mammoth';
 
 export class ParserService {
   /**
-   * Parse a file and extract text content
+   * Parse a file buffer and extract text content
    */
-  async parseFile(filePath: string): Promise<string> {
-    const extension = path.extname(filePath).toLowerCase();
+  async parseBuffer(buffer: Buffer, originalName: string): Promise<string> {
+    const extension = path.extname(originalName).toLowerCase();
 
     switch (extension) {
       case '.pdf':
-        return this.parsePDF(filePath);
+        return this.parsePDFBuffer(buffer);
       case '.docx':
-        return this.parseDOCX(filePath);
+        return this.parseDOCXBuffer(buffer);
       case '.doc':
         throw new Error('Legacy .doc format is not supported. Please use .docx or .pdf');
       case '.txt':
-        return this.parseTXT(filePath);
+        return this.parseTXTBuffer(buffer);
       default:
         throw new Error(`Unsupported file format: ${extension}. Supported formats: PDF, DOCX, TXT`);
     }
   }
 
   /**
-   * Parse PDF file and extract text
+   * Parse PDF buffer and extract text
    */
-  private async parsePDF(filePath: string): Promise<string> {
+  private async parsePDFBuffer(buffer: Buffer): Promise<string> {
     try {
-      const dataBuffer = fs.readFileSync(filePath);
-      const data = await pdfParse(dataBuffer);
+      const data = await pdfParse(buffer);
 
       if (!data.text || data.text.trim().length === 0) {
         throw new Error('Could not extract text from PDF. The file may be image-based or corrupted.');
@@ -46,11 +44,11 @@ export class ParserService {
   }
 
   /**
-   * Parse DOCX file and extract text
+   * Parse DOCX buffer and extract text
    */
-  private async parseDOCX(filePath: string): Promise<string> {
+  private async parseDOCXBuffer(buffer: Buffer): Promise<string> {
     try {
-      const result = await mammoth.extractRawText({ path: filePath });
+      const result = await mammoth.extractRawText({ buffer });
 
       if (!result.value || result.value.trim().length === 0) {
         throw new Error('Could not extract text from DOCX. The file may be empty or corrupted.');
@@ -70,11 +68,11 @@ export class ParserService {
   }
 
   /**
-   * Parse plain text file
+   * Parse plain text buffer
    */
-  private async parseTXT(filePath: string): Promise<string> {
+  private async parseTXTBuffer(buffer: Buffer): Promise<string> {
     try {
-      const content = fs.readFileSync(filePath, 'utf-8');
+      const content = buffer.toString('utf-8');
       return this.cleanText(content);
     } catch (error) {
       if (error instanceof Error) {
@@ -103,19 +101,6 @@ export class ParserService {
       .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
       // Final trim
       .trim();
-  }
-
-  /**
-   * Delete a file after processing
-   */
-  async deleteFile(filePath: string): Promise<void> {
-    try {
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
-    } catch (error) {
-      console.error(`Failed to delete file ${filePath}:`, error);
-    }
   }
 
   /**

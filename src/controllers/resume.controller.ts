@@ -30,8 +30,8 @@ export async function uploadResume(
 
     console.log(`Processing file: ${file.originalname}`);
 
-    // Parse the file and extract text
-    const rawText = await parserService.parseFile(file.path);
+    // Parse the file buffer and extract text
+    const rawText = await parserService.parseBuffer(file.buffer, file.originalname);
 
     if (rawText.length < 100) {
       throw new Error('Resume content is too short. Please upload a complete resume.');
@@ -72,9 +72,6 @@ export async function uploadResume(
       data: { vectorId },
     });
 
-    // Clean up uploaded file
-    await parserService.deleteFile(file.path);
-
     console.log(`Resume processed successfully: ${resume.id}`);
 
     res.status(201).json({
@@ -88,10 +85,6 @@ export async function uploadResume(
       },
     });
   } catch (error) {
-    // Clean up file on error
-    if (file?.path) {
-      await parserService.deleteFile(file.path);
-    }
     next(error);
   }
 }

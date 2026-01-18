@@ -1,6 +1,5 @@
 import express from 'express';
 import multer from 'multer';
-import path from 'path';
 import {
   uploadResume,
   getResumes,
@@ -11,16 +10,8 @@ import {
 const router = express.Router();
 
 // Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const ext = path.extname(file.originalname);
-    cb(null, `resume-${uniqueSuffix}${ext}`);
-  },
-});
+// Use memory storage for cloud deployments (Render, Vercel, etc.)
+const storage = multer.memoryStorage();
 
 const fileFilter = (
   req: express.Request,

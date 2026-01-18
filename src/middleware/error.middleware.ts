@@ -125,15 +125,12 @@ export function errorHandler(
 
   // Default error response
   const statusCode = (err as any).statusCode || 500;
-  const message =
-    process.env.NODE_ENV === 'production'
-      ? 'An unexpected error occurred'
-      : err.message;
 
+  // Show actual error message for debugging (can be hidden later)
   res.status(statusCode).json({
     success: false,
     error: {
-      message,
+      message: err.message || 'An unexpected error occurred',
       code: 'INTERNAL_ERROR',
     },
   });

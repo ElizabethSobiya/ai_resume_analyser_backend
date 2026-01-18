@@ -59,6 +59,8 @@ app.get('/health', (req, res) => {
       openAIKeyPrefix: process.env.OPENAI_API_KEY?.substring(0, 10) || 'not set',
       openAIModel: process.env.OPENAI_MODEL || 'not set',
       hasPineconeKey: !!process.env.PINECONE_API_KEY,
+      pineconeKeyPrefix: process.env.PINECONE_API_KEY?.substring(0, 10) || 'not set',
+      pineconeIndex: process.env.PINECONE_INDEX_NAME || 'not set',
       hasDatabaseURL: !!process.env.DATABASE_URL,
     },
   });
